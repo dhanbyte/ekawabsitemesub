@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '../../../../lib/dbConnect';
+import dbConnect from '../../../../../lib/dbConnect';
 import Review from '../../../../models/Review';
 
 export async function PUT(

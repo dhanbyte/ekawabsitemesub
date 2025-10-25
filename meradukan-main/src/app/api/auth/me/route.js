@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { verifyToken } from '../../../../lib/auth.js'
-import { supabaseAdmin } from '../../../../lib/supabase.js'
+import { verifyToken } from '../../../lib/auth.js'
+import { supabaseAdmin } from '../../../lib/supabase.js'
 
 export async function GET(request) {
   try {

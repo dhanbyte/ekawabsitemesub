@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '../../../../lib/supabase.js'
-import { hashPassword } from '../../../../lib/auth.js'
+import { supabaseAdmin } from '../../../../../lib/supabase.js'
+import { hashPassword } from '../../../../../lib/auth.js'
 
 export async function POST(request) {
   try {

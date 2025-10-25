@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
-import dbConnect from '../../../../lib/dbConnect'
-import AdminUser from '../../../../models/AdminUser'
+import dbConnect from '../../../../../lib/dbConnect'
+import AdminUser from '../../../../../models/AdminUser'
 import mongoose from 'mongoose'
 
 const CartSchema = new mongoose.Schema({ userId: String, items: Array });

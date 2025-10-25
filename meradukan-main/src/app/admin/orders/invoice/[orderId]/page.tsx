@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Download, Print } from 'lucide-react'
+import { ArrowLeft, Download, Printer } from 'lucide-react'
 import Link from 'next/link'
 
 export default function InvoicePage({ params }: { params: { orderId: string } }) {
@@ -130,7 +130,7 @@ export default function InvoicePage({ params }: { params: { orderId: string } })
           </Link>
           <div className="flex gap-2">
             <Button onClick={handlePrint} variant="outline">
-              <Print className="h-4 w-4 mr-2" />
+              <Printer className="h-4 w-4 mr-2" />
               Print
             </Button>
             <Button onClick={handlePrint}>

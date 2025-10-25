@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
-import { verifyToken } from '@/lib/auth';
+import { supabaseAdmin } from '../../../lib/supabase';
+import { verifyToken } from '../../../lib/auth';
 
 interface User {
     id: string;

@@ -1,13 +1,9 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  srcDir: true,
   outputFileTracingRoot: __dirname,
   typescript: {
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   experimental: {
     serverActions: {
@@ -16,11 +12,6 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: [
-      'images.unsplash.com',
-      'ik.imagekit.io',
-      'shopwave.b-cdn.net'
-    ],
     remotePatterns: [
       {
         protocol: 'https',
