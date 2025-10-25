@@ -1,238 +1,214 @@
-import { NextResponse } from 'next/server';
+
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { TECH_PRODUCTS } from '@/lib/data/tech';
-import { HOME_PRODUCTS } from '@/lib/data/home';
+import { verifyToken } from '@/lib/auth';
 
-// Fallback products data
-const fallbackProducts = [
-  {
-    _id: '1',
-    name: 'Wireless Bluetooth Headphones',
-    category: 'Tech',
-    subcategory: 'Audio',
-    brand: 'TechBrand',
-    price: 999,
-    originalPrice: 1299,
-    image: 'https://ik.imagekit.io/b5qewhvhb/e%20commers/tach/electronics%20aaitams/01_53521c05-9caa-4905-9410-e18e9ee19322.webp',
-    description: 'High-quality wireless Bluetooth headphones with noise cancellation',
-    inStock: true,
-    quantity: 15,
-    slug: 'wireless-bluetooth-headphones',
-    isNew: true
-  },
-  {
-    _id: '2',
-    name: 'LED Desk Lamp',
-    category: 'Home',
-    subcategory: 'Lighting',
-    brand: 'HomeBrand',
-    price: 599,
-    originalPrice: 799,
-    image: 'https://ik.imagekit.io/b5qewhvhb/e%20commers/tach/electronics%20aaitams/07_4a3ac08b-5f90-4f47-9c6f-a48d0999f3e7.webp',
-    description: 'Modern LED desk lamp with adjustable brightness',
-    inStock: true,
-    quantity: 8,
-    slug: 'led-desk-lamp',
-    isNew: false
-  },
-  {
-    _id: '3',
-    name: 'USB-C Charging Cable',
-    category: 'Tech',
-    subcategory: 'Cables & Chargers',
-    brand: 'TechBrand',
-    price: 299,
-    originalPrice: 399,
-    image: 'https://ik.imagekit.io/b5qewhvhb/e%20commers/tach/electronics%20aaitams/01_0748acd3-4797-400f-997d-6cecf6b22f5a.webp',
-    description: 'Fast charging USB-C cable 2 meter length',
-    inStock: true,
-    quantity: 25,
-    slug: 'usb-c-charging-cable',
-    isNew: true
-  }
-];
-
-let dbConnect: any;
-let Product: any;
-
-try {
-  dbConnect = require('@/lib/dbConnect').default;
-  Product = require('@/models/Product').default;
-} catch (error) {
-  console.warn('Database modules not available, using fallback products');
+interface User {
+    id: string;
+    role: string;
 }
 
-// GET all products with filtering support
-export async function GET(request: Request) {
+// GET - Fetch products
+export async function GET(request: NextRequest) {
     try {
-        // Try Supabase first
-        try {
-            const { data: products, error } = await supabaseAdmin
-                .from('products')
-                .select(`
-                    *,
-                    vendors(name, commission_rate)
-                `)
-                .eq('in_stock', true);
-            
-            if (error) throw error;
-            
-            if (products && products.length > 0) {
-                const transformedProducts = products.map(product => ({
-                    ...product,
-                    _id: product.id,
-                    shortDescription: product.description?.substring(0, 100) + '...' || '',
-                    extraImages: product.extra_images || [],
-                    features: [],
-                    specifications: {},
-                    ratings: { average: 0, count: 0 },
-                    price: {
-                        original: product.original_price || product.price,
-                        discounted: product.price
-                    },
-                    image: product.image_url
-                }));
-                
-                console.log(`Found ${transformedProducts.length} products in Supabase`);
-                return NextResponse.json(transformedProducts);
-            }
-        } catch (supabaseError) {
-            console.error('Supabase error:', supabaseError);
-        }
-        
-        // Fallback to MongoDB if available
-        if (dbConnect && Product) {
-            try {
-                await dbConnect();
-                
-                const products = await Product.find({}).lean();
-                
-                const transformedProducts = products.map(product => ({
-                    ...product,
-                    id: product._id.toString(),
-                    _id: product._id.toString(),
-                    shortDescription: product.description?.substring(0, 100) + '...' || '',
-                    extraImages: product.extraImages || [],
-                    features: product.features || [],
-                    specifications: product.specifications || {},
-                    ratings: product.ratings || { average: 0, count: 0 },
-                    subcategory: product.subcategory || ''
-                }));
+        const { searchParams } = new URL(request.url);
+        const vendorId = searchParams.get('vendorId');
+        const productId = searchParams.get('id');
 
-                console.log(`Found ${transformedProducts.length} products in MongoDB`);
-                return NextResponse.json(transformedProducts);
-                
-            } catch (dbError) {
-                console.error('MongoDB error:', dbError);
+        // Get single product by ID if ID is provided
+        if (productId) {
+            const { data: product, error } = await supabaseAdmin
+                .from('products')
+                .select('*')
+                .eq('id', productId)
+                .single();
+
+            if (error) throw error;
+            if (!product) {
+                return NextResponse.json({ error: 'Product not found' }, { status: 404 });
             }
+            return NextResponse.json({ success: true, product });
         }
-        
-        // Return fallback + JSON products if database fails
-        console.log('Using fallback + JSON products - database connection failed or no products found');
-        
-        // Combine fallback, tech, and home products
-        const allProducts = [
-            ...fallbackProducts.map(p => ({
-                ...p,
-                id: p._id,
-                price: { original: p.originalPrice, discounted: p.price },
-                shortDescription: p.description.substring(0, 100) + '...',
-                extraImages: [],
-                features: [],
-                specifications: {},
-                ratings: { average: 0, count: 0 },
-                createdAt: new Date().toISOString()
-            })),
-            ...TECH_PRODUCTS,
-            ...HOME_PRODUCTS
-        ];
-        
-        return NextResponse.json(allProducts);
-        
-    } catch (error) {
-        console.error('Error in GET /api/products:', error);
-        return NextResponse.json(fallbackProducts.map(p => ({
-            ...p,
-            id: p._id,
-            price: { original: p.originalPrice, discounted: p.price }
-        })));
+
+        // Get all products with optional vendor filter
+        let query = supabaseAdmin
+            .from('products')
+            .select(`
+                *,
+                vendors(name, commission_rate)
+            `)
+            .eq('status', 'active');
+
+        if (vendorId) {
+            query = query.eq('vendor_id', vendorId);
+        }
+
+        const { data: products, error } = await query;
+
+        if (error) throw error;
+
+        return NextResponse.json({
+            success: true,
+            products: products || []
+        });
+
+    } catch (error: any) {
+        console.error('Products API error:', error);
+        return NextResponse.json(
+            { error: error.message || 'Server error' },
+            { status: error.status || 500 }
+        );
     }
 }
 
-// POST - create a new product
-export async function POST(request: Request) {
+// POST - Create product
+export async function POST(request: NextRequest) {
     try {
-        const productData = await request.json();
-        console.log('Received product data:', productData);
-        
-        // Try Supabase first
-        try {
-            const supabaseProduct = {
-                name: productData.name,
-                description: productData.description,
-                category: productData.category,
-                subcategory: productData.subcategory,
-                brand: productData.brand,
-                price: productData.price?.discounted || productData.price,
-                original_price: productData.price?.original || productData.originalPrice,
-                image_url: productData.image,
-                extra_images: productData.extraImages || [],
-                quantity: productData.quantity || 0,
-                in_stock: productData.inStock !== false,
-                slug: productData.slug,
-                is_new: productData.isNew || false,
-                vendor_id: productData.vendorId,
-                vendor_name: productData.vendorName,
-                is_vendor_product: productData.isVendorProduct || false,
-                vendor_commission: productData.vendorCommission || 0
-            };
-            
-            const { data: savedProduct, error } = await supabaseAdmin
-                .from('products')
-                .insert(supabaseProduct)
-                .select()
-                .single();
-            
-            if (error) throw error;
-            
-            console.log('Product saved to Supabase:', savedProduct.id);
-            
-            return NextResponse.json({ 
-                success: true,
-                data: {
-                    ...savedProduct,
-                    _id: savedProduct.id,
-                    id: savedProduct.id
-                }
-            }, { status: 201 });
-            
-        } catch (supabaseError) {
-            console.error('Supabase error:', supabaseError);
-            
-            // Fallback to MongoDB
-            if (dbConnect && Product) {
-                await dbConnect();
-                const product = new Product(productData);
-                const savedProduct = await product.save();
-                
-                return NextResponse.json({ 
-                    success: true,
-                    data: {
-                        ...savedProduct.toObject(),
-                        id: savedProduct._id.toString(),
-                        _id: savedProduct._id.toString()
-                    }
-                }, { status: 201 });
-            }
-            
-            throw supabaseError;
+        const authHeader = request.headers.get('authorization');
+        if (!authHeader) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
-        
-    } catch (error) {
-        console.error('Error in POST /api/products:', error);
-        return NextResponse.json({ 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Failed to create product' 
-        }, { status: 500 });
+        const token = authHeader.substring(7);
+        const user = verifyToken(token) as User | null;
+        if (!user) {
+            return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+        }
+
+        if (user.role !== 'vendor' && user.role !== 'admin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const productData = await request.json();
+
+        if (user.role === 'vendor') {
+            productData.vendor_id = user.id;
+        }
+
+        const { data: newProduct, error } = await supabaseAdmin
+            .from('products')
+            .insert({
+                ...productData,
+                status: 'active',
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        return NextResponse.json({ success: true, product: newProduct });
+
+    } catch (error: any) {
+        console.error('Create product error:', error);
+        return NextResponse.json(
+            { error: error.message || 'Failed to create product' },
+            { status: error.status || 500 }
+        );
+    }
+}
+
+// PUT - Update product
+export async function PUT(request: NextRequest) {
+    try {
+        const authHeader = request.headers.get('authorization');
+        if (!authHeader) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const token = authHeader.substring(7);
+        const user = verifyToken(token) as User | null;
+        if (!user) {
+            return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+        }
+
+        const { id, ...updates } = await request.json();
+
+        if (!id) {
+            return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+        }
+
+        const { data: existingProduct, error: fetchError } = await supabaseAdmin
+            .from('products')
+            .select('vendor_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) throw fetchError;
+        if (!existingProduct) {
+            return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+        }
+
+        if (user.role !== 'admin' && existingProduct.vendor_id !== user.id) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const { data: updatedProduct, error: updateError } = await supabaseAdmin
+            .from('products')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (updateError) throw updateError;
+
+        return NextResponse.json({ success: true, product: updatedProduct });
+
+    } catch (error: any) {
+        console.error('Update product error:', error);
+        return NextResponse.json(
+            { error: error.message || 'Failed to update product' },
+            { status: error.status || 500 }
+        );
+    }
+}
+
+// DELETE - Delete product
+export async function DELETE(request: NextRequest) {
+    try {
+        const authHeader = request.headers.get('authorization');
+        if (!authHeader) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const token = authHeader.substring(7);
+        const user = verifyToken(token) as User | null;
+        if (!user) {
+            return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+        }
+
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+        }
+
+        const { data: existingProduct, error: fetchError } = await supabaseAdmin
+            .from('products')
+            .select('vendor_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) throw fetchError;
+        if (!existingProduct) {
+            return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+        }
+
+        if (user.role !== 'admin' && existingProduct.vendor_id !== user.id) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const { error: deleteError } = await supabaseAdmin
+            .from('products')
+            .update({ status: 'deleted', deleted_at: new Date().toISOString() })
+            .eq('id', id);
+
+        if (deleteError) throw deleteError;
+
+        return NextResponse.json({ success: true, message: 'Product deleted successfully' });
+
+    } catch (error: any) {
+        console.error('Delete product error:', error);
+        return NextResponse.json(
+            { error: error.message || 'Failed to delete product' },
+            { status: error.status || 500 }
+        );
     }
 }

@@ -1,7 +1,6 @@
+
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import AdminOrder from '@/models/AdminOrder';
-import AdminUser from '@/models/AdminUser';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
@@ -15,33 +14,38 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    await dbConnect();
-    
     // Generate order ID
     const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     // Create new order
-    const order = new AdminOrder({
-      orderId,
-      userId,
-      items,
-      total,
-      status: 'pending',
-      paymentMethod,
-      paymentId,
-      shippingAddress
-    });
+    const { data: order, error: orderError } = await supabaseAdmin
+        .from('orders')
+        .insert({
+            order_id: orderId,
+            customer_clerk_id: userId,
+            items: items,
+            total_amount: total,
+            payment_method: paymentMethod,
+            payment_id: paymentId,
+            shipping_address: shippingAddress,
+            status: 'pending'
+        })
+        .select()
+        .single();
 
-    await order.save();
+    if (orderError) throw orderError;
 
     // Update user's purchase status
-    await AdminUser.findOneAndUpdate(
-      { userId },
-      { 
-        $inc: { coins: Math.floor(total * 0.01) }, // 1% cashback in coins
-        updatedAt: new Date()
-      }
-    );
+    const { data: user, error: userError } = await supabaseAdmin
+      .rpc('add_coins', { 
+        user_id_to_update: userId, 
+        coins_to_add: Math.floor(total * 0.01) 
+    });
+
+    if (userError) {
+      // Log the error but don't block the order from being placed
+      console.error('Error updating user coins:', userError);
+    }
 
     return NextResponse.json({ 
       success: true, 

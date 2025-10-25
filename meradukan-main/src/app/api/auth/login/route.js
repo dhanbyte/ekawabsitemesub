@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../../lib/supabase.js'
 import { comparePassword, generateToken } from '../../../../lib/auth.js'
@@ -15,7 +16,7 @@ export async function POST(request) {
 
     // Get user from database
     const { data: user, error } = await supabaseAdmin
-      .from('admin_users')
+      .from('users')
       .select('*')
       .eq('email', email)
       .eq('status', 'active')
