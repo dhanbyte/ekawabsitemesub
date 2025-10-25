@@ -1,6 +1,6 @@
+
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import AdminUser from '@/models/AdminUser';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
@@ -14,44 +14,34 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    await dbConnect();
-    
-    // Check if user already exists
-    const existingUser = await AdminUser.findOne({ 
-      $or: [{ userId }, { email }] 
-    });
+    // Upsert user data in Supabase
+    const { data: user, error } = await supabaseAdmin
+      .from('users')
+      .upsert({
+        id: userId,
+        email: email,
+        full_name: fullName,
+        phone: phone,
+        coins: 5, // Welcome coins
+        referral_code: Math.random().toString(36).substring(2, 10).toUpperCase()
+      }, { onConflict: 'id' });
 
-    if (existingUser) {
-      return NextResponse.json({ 
-        success: true, 
-        user: existingUser,
-        message: 'User already exists' 
-      });
+    if (error) {
+      console.error('Error upserting user in Supabase:', error);
+      throw new Error(error.message);
     }
-
-    // Create new user
-    const user = new AdminUser({
-      userId,
-      email,
-      fullName,
-      phone,
-      coins: 5, // Welcome coins
-      referralCode: Math.random().toString(36).substring(2, 10).toUpperCase()
-    });
-
-    await user.save();
 
     return NextResponse.json({ 
       success: true, 
-      user,
-      message: 'User registered successfully' 
+      user: user,
+      message: 'User registered/updated successfully' 
     });
 
   } catch (error) {
     console.error('Error registering user:', error);
     return NextResponse.json({ 
       success: false, 
-      error: 'Failed to register user' 
+      error: 'Failed to register user'
     }, { status: 500 });
   }
 }
