@@ -76,7 +76,7 @@ export async function GET(request: Request) {
                 await dbConnect();
                 
                 // Connect to MongoDB directly to check vendor status
-                const client = new MongoClient(process.env.MONGODB_URI);
+                const client = new MongoClient(process.env.MONGODB_URIS || '');
                 await client.connect();
                 const db = client.db(process.env.MONGODB_DB_NAME);
                 

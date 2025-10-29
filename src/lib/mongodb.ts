@@ -1,10 +1,10 @@
 import { MongoClient, Db } from 'mongodb'
 
-if (!process.env.MONGODB_URI) {
+if (!process.env.MONGODB_URIS) {
   console.warn('MongoDB URI not found in environment variables')
 }
 
-const uri = process.env.MONGODB_URI
+const uri = process.env.MONGODB_URIS
 const dbName = process.env.MONGODB_DB_NAME || 'shopwave'
 
 let client: MongoClient

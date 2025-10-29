@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const orders = await query
 
     // Connect to MongoDB to get customer details
-    const client = new MongoClient(process.env.MONGODB_URI)
+    const client = new MongoClient(process.env.MONGODB_URIS || '')
     await client.connect()
     const db = client.db(process.env.MONGODB_DB_NAME)
     

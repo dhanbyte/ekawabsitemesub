@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGODB_URI = 'mongodb+srv://dhananjaywin15112004:ec2cY3Gk2HxizdS2@cluster.4jkps.mongodb.net/?retryWrites=true&w=majority&appName=photos-test';
+const MONGODB_URISS = 'mongodb+srv://dhananjaywin15112004:ec2cY3Gk2HxizdS2@cluster.4jkps.mongodb.net/?retryWrites=true&w=majority&appName=photos-test';
 
 // Test schemas
 const AdminUserSchema = new mongoose.Schema({
@@ -74,7 +74,7 @@ const AdminOrderSchema = new mongoose.Schema({
 
 async function testAdminSystem() {
   try {
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URIS);
     console.log('✅ Connected to MongoDB');
 
     const AdminUser = mongoose.model('AdminUser', AdminUserSchema);
