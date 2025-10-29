@@ -1,7 +1,7 @@
 /* Tailwind CSS Directives - These are required for Tailwind to work */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Base Styles */
 @layer base {
