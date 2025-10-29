@@ -1,129 +1,191 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS Directives - These are required for Tailwind to work */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
+/* Base Styles */
 @layer base {
   :root {
+    /* Color Variables */
     --background: 220 20% 97%; /* Light Gray */
     --foreground: 222.2 84% 4.9%;
-
+    
     --card: 0 0% 100%; /* White */
     --card-foreground: 222.2 84% 4.9%;
- 
+    
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
- 
+    
     --primary: 221.2 83.2% 53.3%; /* Blue */
     --primary-foreground: 210 40% 98%;
- 
+    
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
- 
+    
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
- 
+    
     --accent: 30 90% 55%; /* Orange */
     --accent-foreground: 210 40% 98%;
- 
+    
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
+    
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
- 
+    --ring: 221.2 83.2% 53.3%;
+    
     --radius: 0.75rem;
-
     --brand-hsl: 221.2 83.2% 53.3%;
   }
-}
-
-@layer base {
+  
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
+  
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-.container {
-  @apply mx-auto max-w-7xl px-3 sm:px-4;
+/* Components */
+@layer components {
+  .container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 80rem; /* max-w-7xl */
+    padding-left: 0.75rem; /* px-3 */
+    padding-right: 0.75rem; /* px-3 */
+  }
+  
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1rem; /* sm:px-4 */
+      padding-right: 1rem; /* sm:px-4 */
+    }
+  }
+  
+  .card {
+    border-radius: 0.75rem; /* rounded-xl */
+    background-color: hsl(var(--card)); /* bg-card */
+    color: hsl(var(--card-foreground)); /* text-card-foreground */
+    --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+    --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    transition-property: box-shadow; /* transition-shadow */
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  .card:hover {
+    --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* hover:shadow-md */
+    --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  }
+  
+  .sticky-cta {
+    position: fixed; /* fixed */
+    bottom: 3.5rem; /* bottom-14 */
+    left: 0; /* inset-x-0 */
+    right: 0; /* inset-x-0 */
+    z-index: 40; /* z-40 */
+    border-top-width: 1px; /* border-t */
+    border-color: hsl(var(--border)); /* border-t */
+    background-color: hsla(var(--background) / 0.95); /* bg-background/95 */
+    -webkit-backdrop-filter: blur(4px); /* backdrop-blur-sm */
+    backdrop-filter: blur(4px); /* backdrop-blur-sm */
+  }
+  
+  @media (min-width: 768px) { /* md breakpoint */
+    .sticky-cta {
+      display: none; /* md:hidden */
+    }
+  }
+  
+  .image-container {
+    position: relative; /* relative */
+    overflow: hidden; /* overflow-hidden */
+    background-color: #f9fafb; /* bg-gray-50 */
+  }
+  
+  .product-image {
+    position: relative; /* relative */
+    aspect-ratio: 1 / 1; /* aspect-square */
+    overflow: hidden; /* overflow-hidden */
+    border-radius: 0.375rem; /* rounded-md */
+    background-color: #f9fafb; /* bg-gray-50 */
+  }
+  
+  .category-image {
+    position: relative; /* relative */
+    aspect-ratio: 1 / 1; /* aspect-square */
+    overflow: hidden; /* overflow-hidden */
+    border-radius: 0.5rem; /* rounded-lg */
+    --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+    --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  }
 }
 
-/* Scrollbar subtle */
+/* Utilities */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+  
+  .blinking-dot {
+    animation: blink 1.5s infinite step-end;
+  }
+  
+  @keyframes blink {
+    50% { opacity: 0.5; }
+  }
+}
+
+/* Custom Scrollbar */
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 *::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 8px;
 }
 
-/* Hide scrollbar */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* Card hover */
-.card {
-  @apply rounded-xl bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md;
+/* Image Hover Effects */
+.image-container img,
+.product-image img {
+  object-fit: cover; /* object-cover */
+  width: 100%; /* w-full */
+  height: 100%; /* h-full */
+  transition-property: transform; /* transition-transform */
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms; /* duration-200 */
 }
 
-/* Sticky bottom bar (mobile CTAs) */
-.sticky-cta {
-  @apply fixed bottom-14 inset-x-0 z-40 border-t bg-background/95 backdrop-blur-sm md:hidden;
+.image-container:hover img,
+.product-image:hover img {
+  transform: scale(1.05);
 }
 
-@keyframes blink {
-  50% { opacity: 0.5; }
-}
-
-.blinking-dot {
-  animation: blink 1.5s infinite step-end;
-}
-
-/* Image utilities */
+/* Aspect Ratio Utilities */
 .aspect-square {
   aspect-ratio: 1 / 1;
 }
 
-.image-container {
-  @apply relative overflow-hidden bg-gray-50;
-}
-
-.image-container img {
-  @apply object-cover w-full h-full transition-transform duration-200;
-}
-
-.image-container:hover img {
-  @apply scale-105;
-}
-
-/* Product image fixes */
-.product-image {
-  @apply relative aspect-square overflow-hidden rounded-md bg-gray-50;
-}
-
-.product-image img {
-  @apply object-cover w-full h-full transition-transform duration-200;
-}
-
-.product-image:hover img {
-  @apply scale-105;
-}
-
-/* Category image fixes */
-.category-image {
-  @apply relative aspect-square overflow-hidden rounded-lg shadow-sm;
-}
-
+/* Ensure images in category maintain aspect ratio */
 .category-image img {
-  @apply object-cover w-full h-full;
+  object-fit: cover; /* object-cover */
+  width: 100%; /* w-full */
+  height: 100%; /* h-full */
 }

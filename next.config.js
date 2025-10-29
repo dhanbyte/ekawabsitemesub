@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  srcDir: true,
   outputFileTracingRoot: __dirname,
   typescript: {
     ignoreBuildErrors: true,
