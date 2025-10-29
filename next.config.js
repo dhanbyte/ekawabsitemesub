@@ -8,6 +8,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  swcMinify: true,
+  output: 'standalone',
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000', '*.vercel.app', 'shopwave.social', '*.shopwave.social']
