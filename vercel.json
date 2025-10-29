@@ -8,7 +8,6 @@
     }
   },
   "env": {
-    "MONGODB_URIS": "@mongodb_uri",
     "MONGODB_DB_NAME": "@mongodb_db_name",
     "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "@clerk_publishable_key",
     "CLERK_SECRET_KEY": "@clerk_secret_key",
