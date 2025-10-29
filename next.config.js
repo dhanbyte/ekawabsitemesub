@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  outputFileTracingRoot: __dirname,
+  // outputFileTracingRoot: __dirname, // Commented out as it's causing warnings
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -18,6 +18,8 @@ const nextConfig = {
     unoptimized: true,
     domains: [
       'images.unsplash.com',
+      'ik.imagekit.io',
+      'ik.imagekit.io/b5qewhvhb',
       'ik.imagekit.io',
       'shopwave.b-cdn.net'
     ],
