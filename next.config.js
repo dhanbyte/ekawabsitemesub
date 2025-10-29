@@ -1,44 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // outputFileTracingRoot: __dirname, // Commented out as it's causing warnings
-  typescript: {
-    ignoreBuildErrors: true,
+  experimental: {
+    serverComponentsExternalPackages: ['mongoose', 'bcryptjs']
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
+    }
+    
+    config.externals = [...(config.externals || []), 'bcryptjs'];
+    
+    return config;
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
-  swcMinify: true,
-  output: 'standalone',
-  experimental: {
-    serverActions: {
-      allowedOrigins: ['localhost:3000', '*.vercel.app', 'shopwave.social', '*.shopwave.social']
-    }
+  typescript: {
+    ignoreBuildErrors: true,
   },
-  images: {
-    unoptimized: true,
-    domains: [
-      'images.unsplash.com',
-      'ik.imagekit.io',
-      'ik.imagekit.io/b5qewhvhb',
-      'ik.imagekit.io',
-      'shopwave.b-cdn.net'
-    ],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      }
-    ],
-  },
-  compress: true,
-  poweredByHeader: false,
-  env: {
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2xlcmsuaW5jbHVkZWQua2F0eWRpZC05Mi5sY2wuZGV2JA',
-    NEXT_PUBLIC_PHONEPE_MERCHANT_ID: process.env.NEXT_PUBLIC_PHONEPE_MERCHANT_ID,
-    PHONEPE_SALT_KEY: process.env.PHONEPE_SALT_KEY,
-    PHONEPE_SALT_INDEX: process.env.PHONEPE_SALT_INDEX,
-    PHONEPE_MODE: process.env.PHONEPE_MODE
-  },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
