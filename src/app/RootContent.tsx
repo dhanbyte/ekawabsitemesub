@@ -5,47 +5,47 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 // Dynamic imports with error handling
-const TopBar = dynamic(() => import('@/components/TopBar'), {
+const TopBar = dynamic(() => import('../components/TopBar'), {
   loading: () => <div className="h-16 bg-white border-b" />,
   ssr: false
 });
 
-const BottomNav = dynamic(() => import('@/components/BottomNav'), {
+const BottomNav = dynamic(() => import('../components/BottomNav'), {
   loading: () => null,
   ssr: false
 });
 
-const Footer = dynamic(() => import('@/components/Footer'), {
+const Footer = dynamic(() => import('../components/Footer'), {
   loading: () => null,
   ssr: false
 });
 
-const BackInStockPopup = dynamic(() => import('@/components/BackInStockPopup'), {
+const BackInStockPopup = dynamic(() => import('../components/BackInStockPopup'), {
   loading: () => null,
   ssr: false
 });
 
-const WelcomePopup = dynamic(() => import('@/components/WelcomePopup'), {
+const WelcomePopup = dynamic(() => import('../components/WelcomePopup'), {
   loading: () => null,
   ssr: false
 });
 
-const LoadingSpinner = dynamic(() => import('@/components/LoadingSpinner'), {
+const LoadingSpinner = dynamic(() => import('../components/LoadingSpinner'), {
   loading: () => <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />,
   ssr: false
 });
 
-const LoadingFallback = dynamic(() => import('@/components/LoadingFallback'), {
+const LoadingFallback = dynamic(() => import('../components/LoadingFallback'), {
   loading: () => <div className="flex h-screen items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>,
   ssr: false
 });
 
-const ErrorBoundary = dynamic(() => import('@/components/ErrorBoundary'), {
+const ErrorBoundary = dynamic(() => import('../components/ErrorBoundary'), {
   loading: () => <div />,
   ssr: false
 });
 
-const Toaster = dynamic(() => import('@/components/ui/toast').then(mod => ({ default: mod.Toaster })), {
+const Toaster = dynamic(() => import('../components/ui/toast').then(mod => ({ default: mod.Toaster })), {
   loading: () => null,
   ssr: false
 });
