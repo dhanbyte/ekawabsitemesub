@@ -8,6 +8,11 @@
     }
   },
   "env": {
+
+
+
+
+    
     "MONGODB_URIS": "mongodb+srv://dhananjaywin15112004:ec2cY3Gk2HxizdS2@cluster.4jkps.mongodb.net/?retryWrites=true&w=majority&appName=photos-test",
     "MONGODB_DB_NAME": "photos-test",
     "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_YWR2YW5jZWQta29pLTU4LmNsZXJrLmFjY291bnRzLmRldiQ",
